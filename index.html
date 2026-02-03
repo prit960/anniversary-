@@ -1,1 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Anniversary Baccha ❤️</title>
+
+<style>
+body{
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+  overflow:hidden;
+  background: linear-gradient(135deg,#ffafbd,#ffc3a0);
+  height:100vh;
+}
+.screen{
+  display:none;
+  height:100vh;
+  width:100%;
+  text-align:center;
+  padding:20px;
+  color:white;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+}
+.active{display:flex;animation:fade .6s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+
+input{
+  padding:12px;
+  border-radius:25px;
+  border:none;
+  width:220px;
+  text-align:center;
+  font-size:16px;
+}
+button{
+  background:white;
+  color:#ff4f7b;
+  border:none;
+  padding:12px 30px;
+  border-radius:30px;
+  font-size:16px;
+  margin-top:15px;
+}
+.heart{
+  font-size:90px;
+  animation:pulse 1.3s infinite;
+  cursor:pointer;
+}
+@keyframes pulse{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.2)}
+  100%{transform:scale(1)}
+}
+.hug{
+  font-size:120px;
+  animation:hug 1.5s infinite;
+}
+@keyframes hug{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.1)}
+  100%{transform:scale(1)}
+}
+</style>
+</head>
+
+<body>
+
+<audio id="bgm" loop>
+  <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_9f8c4f7e28.mp3?filename=romantic-ambient-110624.mp3">
+</audio>
+
+<!-- Screen 1 -->
+<div class="screen active" id="s1">
+  <h2>Tap to Open 💕</h2>
+  <button onclick="start()">Open</button>
+</div>
+
+<!-- Q1 -->
+<div class="screen" id="s2">
+  <p>🍕 Favorite food kya hai?</p>
+  <input id="a1" placeholder="Type here">
+  <button onclick="nextQ(3)">Next</button>
+</div>
+
+<!-- Q2 -->
+<div class="screen" id="s3">
+  <p>🎨 Favorite color?</p>
+  <input id="a2" placeholder="Type here">
+  <button onclick="nextQ(4)">Next</button>
+</div>
+
+<!-- Q3 -->
+<div class="screen" id="s4">
+  <p>💫 Sabse yaadgar moment?</p>
+  <input id="a3" placeholder="Type here">
+  <button onclick="nextQ(5)">Next</button>
+</div>
+
+<!-- Message -->
+<div class="screen" id="s5">
+  <p style="max-width:320px;line-height:1.6">
+    You are the only one in every beat of my heart.<br><br>
+    May this beautiful journey of our love continue forever.<br><br>
+    Every moment spent with you is like a beautiful dream.<br><br>
+    Thank you for brightening my life 🤍
+  </p>
+  <button onclick="showHeart()">❤️</button>
+</div>
+
+<!-- Heart -->
+<div class="screen" id="s6">
+  <p>Tap the heart…</p>
+  <div class="heart" onclick="final()">❤️</div>
+</div>
+
+<!-- Final -->
+<div class="screen" id="s7">
+  <div class="hug">🤗</div>
+  <h2>Happy Anniversary 💞</h2>
+  <h3>Love you Baccha ❤️</h3>
+</div>
+
+<script>
+const phone = "916367966262"; // +91 removed
+let ans = {};
+
+function start(){
+  document.getElementById("bgm").play();
+  go(2);
+}
+
+function go(n){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s'+n).classList.add('active');
+}
+
+function nextQ(n){
+  const prev = n-1;
+  const input = document.querySelector('#s'+prev+' input');
+  if(!input.value.trim()){
+    alert("Answer likho ❤️");
+    return;
+  }
+  ans["Q"+prev] = input.value.trim();
+  go(n);
+}
+
+function showHeart(){ go(6); }
+
+function final(){
+  go(7);
+
+  const msg =
+`Anniversary Answers 💕
+Food: ${ans.Q2}
+Color: ${ans.Q3}
+Moment: ${ans.Q4}`;
+
+  const url = "https://wa.me/"+phone+"?text="+encodeURIComponent(msg);
+  window.open(url,"_blank");
+
+  setTimeout(()=>{
+    document.body.innerHTML="";
+    window.close();
+  },4000);
+}
+</script>
+
+</body>
+</html>
 
