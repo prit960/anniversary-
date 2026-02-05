@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Happy Anniversary Baccha ❤️</title>
 
 <style>
+/* ---------- Base / existing styles ---------- */
 body{
   margin:0;
   font-family:'Segoe UI',sans-serif;
@@ -68,11 +69,11 @@ button{
   100%{transform:scale(1);}
 }
 
-/* ---------- Falling roses styles (added) ---------- */
+/* ---------- Falling roses (unchanged) ---------- */
 .rose-container{
   position:fixed;
   inset:0;
-  pointer-events:none; /* don't block clicks */
+  pointer-events:none;
   overflow:hidden;
   z-index:9999;
 }
@@ -84,66 +85,131 @@ button{
   animation-name:fall;
   animation-timing-function:linear;
   animation-fill-mode:forwards;
-  /* --dur will be set inline in JS (fixed to 7s) */
   animation-duration: var(--dur, 7s);
 }
+.rose-inner{ display:inline-block; transform-origin:center; animation-name:sway; animation-timing-function:ease-in-out; animation-fill-mode:forwards; animation-duration: var(--dur,7s); user-select:none; }
 
-.rose-inner{
-  display:inline-block;
-  transform-origin:center;
-  /* sway animation runs for same duration as fall */
-  animation-name:sway;
-  animation-timing-function:ease-in-out;
-  animation-fill-mode:forwards;
-  animation-duration: var(--dur, 7s);
+@keyframes fall{ 0%{ transform: translateY(-20vh); opacity:1; } 100%{ transform: translateY(120vh); opacity:0.95; } }
+@keyframes sway{ 0%{ transform: translateX(0) rotate(0deg); } 50%{ transform: translateX(var(--drift,40px)) rotate(180deg); } 100%{ transform: translateX(calc(var(--drift,40px) * -1)) rotate(360deg); } }
+
+/* ---------- SINGLE DUDU overlay (updated position slightly lower) ---------- */
+/* Non-intrusive overlay, above question area; pointer-events:none so inputs not blocked. */
+.dudu-overlay{
+  position:fixed;
+  top:12vh;                 /* moved slightly lower as requested */
+  left:50%;
+  transform:translateX(-50%);
+  width:220px;             /* container width */
+  height:140px;
+  z-index:10005;
+  pointer-events:none;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  opacity:0.98;
+}
+
+/* GIF sizing reduced so message remains visible */
+.dudu-overlay img{
+  width:100px;             /* smaller size as requested */
+  height:auto;
+  display:block;
+  pointer-events:none;
   user-select:none;
+  -webkit-user-drag:none;
+  will-change:transform,opacity;
+  transform-origin:center bottom;
 }
 
-@keyframes fall{
-  0%{ transform: translateY(-20vh); opacity:1; }
-  100%{ transform: translateY(120vh); opacity:0.95; }
+/* center heart that appears when kiss/hug */
+.dudu-heart{
+  position:absolute;
+  left:50%;
+  top:6px;
+  transform:translateX(-50%) scale(0);
+  width:40px;
+  height:40px;
+  pointer-events:none;
+  z-index:10006;
+  opacity:0;
+  transition: transform 180ms cubic-bezier(.2,.8,.2,1), opacity 180ms;
 }
 
-@keyframes sway{
-  0%{ transform: translateX(0) rotate(0deg); }
-  50%{ transform: translateX(var(--drift, 40px)) rotate(180deg); }
-  100%{ transform: translateX(calc(var(--drift, 40px) * -1)) rotate(360deg); }
+/* small sparkle */
+.dudu-spark{
+  position:absolute;
+  left:50%;
+  top:-16px;
+  transform:translateX(-50%) scale(0);
+  width:18px;
+  height:18px;
+  pointer-events:none;
+  z-index:10007;
+  opacity:0;
+  transition: transform 180ms ease, opacity 180ms ease;
 }
-/* ---------- end falling roses styles ---------- */
 
+/* visible states toggled by JS */
+.dudu-overlay._heart-on .dudu-heart { transform:translateX(-50%) scale(1.05); opacity:1; }
+.dudu-overlay._spark-on .dudu-spark { transform:translateX(-50%) scale(1); opacity:1; }
+
+/* animation helper classes for single Dudu element */
+.dudu._walk { transform: translateX(-16px) translateY(0) scale(1.02) rotate(0deg); transition: transform 600ms cubic-bezier(.2,.8,.2,1); }
+.dudu._approach { transform: translateX(6px) translateY(-4px) scale(1.06) rotate(-3deg); transition: transform 260ms ease; }
+.dudu._close { transform: translateX(10px) translateY(-6px) scale(1.08) rotate(-5deg); transition: transform 220ms ease; }
+.dudu._kiss { transform: translateX(10px) translateY(-8px) scale(1.04) rotate(-2deg); transition: transform 160ms ease; }
+.dudu._retreat { transform: translateX(0px) translateY(0) scale(0.96) rotate(0deg); transition: transform 700ms cubic-bezier(.2,.8,.2,1); }
+.dudu._dance { transform: translateY(-8px) scale(1.08); transition: transform 420ms ease; }
+
+/* responsive tweaks */
+@media (max-width:420px){
+  .dudu-overlay{ width:180px; top:9.5vh; height:110px; } /* slightly adjusted for small screens */
+  .dudu-overlay img{ width:84px; }
+  .dudu-heart{ width:32px; height:32px; top:4px; }
+}
 </style>
 </head>
-
 <body>
 
-<!-- Screen 1 -->
+<!-- SINGLE DUDU overlay -->
+<div class="dudu-overlay" id="duduOverlay" aria-hidden="true">
+  <img id="duduGif" class="dudu" src="https://media.tenor.com/L0OFpUCj9bkAAAAM/emote.gif" alt="Dudu" crossorigin="anonymous" />
+  <div class="dudu-heart" id="duduHeart" aria-hidden="true">
+    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+      <path d="M32 58s-22-13-22-29c0-7 5-12 11-12 5 0 8 3 11 6 3-3 6-6 11-6 6 0 11 5 11 12 0 16-22 29-22 29z" fill="#ff4f7b"/>
+    </svg>
+  </div>
+  <div class="dudu-spark" id="duduSpark" aria-hidden="true">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+      <path d="M12 2 L13.5 7 L19 8.5 L13.5 10 L12 15 L10.5 10 L5 8.5 L10.5 7 Z" fill="#ffe066"/>
+    </svg>
+  </div>
+</div>
+
+<!-- Screens (existing flow) -->
 <div class="screen active" id="s1">
   <h2>Tap to Open 💕</h2>
   <button onclick="next(2)">Open</button>
 </div>
 
-<!-- Screen 2 -->
 <div class="screen" id="s2">
   <p>🍕 Favorite food kya hai?</p>
   <input id="ans1" placeholder="Type here">
   <button onclick="checkAnswer(1)">Next</button>
 </div>
 
-<!-- Screen 3 -->
 <div class="screen" id="s3">
   <p>🎨 Favorite color kya hai?</p>
   <input id="ans2" placeholder="Type here">
   <button onclick="checkAnswer(2)">Next</button>
 </div>
 
-<!-- Screen 4 -->
 <div class="screen" id="s4">
   <p>💫 Sabse yaadgar moment?</p>
   <input id="ans3" placeholder="Type here">
   <button onclick="checkAnswer(3)">Next</button>
 </div>
 
-<!-- Screen 5 -->
 <div class="screen" id="s5">
   <p style="line-height:1.6; max-width:330px;">
     You are the only one in every beat of my heart.<br><br>
@@ -154,26 +220,24 @@ button{
   <button onclick="next(6)">❤️</button>
 </div>
 
-<!-- Screen 6 -->
 <div class="screen" id="s6">
   <p>Tap the heart…</p>
   <div class="heart" onclick="next(7)">❤️</div>
 </div>
 
-<!-- Screen 7 -->
 <div class="screen" id="s7">
   <h2>My Promise 💞</h2>
   <p>I’ll always choose you, every single day.</p>
   <h1>🎉 Happy Anniversary 🎉</h1>
   <h2>Love you Baccha ❤️</h2>
-
   <button onclick="sendWhatsApp()">SEND 💌</button>
 </div>
 
-<!-- Rose container (added) -->
+<!-- Rose container -->
 <div class="rose-container" id="roseContainer" aria-hidden="true"></div>
 
 <script>
+/* ---------- existing JS (unchanged functionality) ---------- */
 function next(n){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('s'+n).classList.add('active');
@@ -181,10 +245,7 @@ function next(n){
 
 function checkAnswer(p){
   const v=document.getElementById('ans'+p).value.trim();
-  if(v===''){
-    alert('Answer likhna zaroori hai ❤️');
-    return;
-  }
+  if(v===''){ alert('Answer likhna zaroori hai ❤️'); return; }
   next(p+2);
 }
 
@@ -192,84 +253,95 @@ function sendWhatsApp(){
   const a1=document.getElementById('ans1').value;
   const a2=document.getElementById('ans2').value;
   const a3=document.getElementById('ans3').value;
-
-  const msg=
-`She answered ❤️
+  const msg=`She answered ❤️
 
 🍕 Favorite Food: ${a1}
 🎨 Favorite Color: ${a2}
 💫 Best Memory: ${a3}`;
-
-  window.location.href=
-  "https://wa.me/916367966262?text="+encodeURIComponent(msg);
+  window.location.href = "https://wa.me/916367966262?text=" + encodeURIComponent(msg);
 }
 
-/* ---------- Falling roses script (added) ---------- */
-/* Each rose now has a fixed duration of 7000ms (7s) and new spawn interval 450ms.
-   Keeps pointer-events:none so it won't block interactions.
-*/
-
+/* ---------- Falling roses script (unchanged) ---------- */
 (function enableFallingRoses(){
-  const container = document.getElementById('roseContainer');
-  if(!container) return;
-
-  let maxOnScreen = 18;          // maximum roses at once
-  let spawnInterval = 450;      // ms between spawns (as requested)
-  let fixedDurationMs = 7000;   // duration for each rose in ms (7000ms)
-  let activeCount = 0;
-
+  const container = document.getElementById('roseContainer'); if(!container) return;
+  let maxOnScreen = 18, spawnInterval = 450, fixedDurationMs = 7000, activeCount = 0;
   function createRose(){
     if(activeCount >= maxOnScreen) return;
-
-    const rose = document.createElement('div');
-    rose.className = 'rose';
-
-    // Random horizontal start (0% - 100%)
-    const left = Math.random() * 100;
-    rose.style.left = left + '%';
-
-    // Fixed duration 7s
-    const dur = (fixedDurationMs/1000).toFixed(2) + 's';
-    rose.style.setProperty('--dur', dur);
-
-    // Random z-index small variation to give depth
+    const rose = document.createElement('div'); rose.className = 'rose';
+    const left = Math.random() * 100; rose.style.left = left + '%';
+    const dur = (fixedDurationMs/1000).toFixed(2) + 's'; rose.style.setProperty('--dur', dur);
     rose.style.zIndex = (9999 + Math.floor(Math.random()*10)).toString();
-
-    // inner element handles sway/rotation so transforms don't clash
-    const inner = document.createElement('div');
-    inner.className = 'rose-inner';
-    inner.textContent = '🌹';
-
-    // Random drift (px), font size (px)
-    const drift = Math.floor(20 + Math.random() * 80) + 'px';
-    inner.style.setProperty('--drift', drift);
+    const inner = document.createElement('div'); inner.className = 'rose-inner'; inner.textContent = '🌹';
+    const drift = Math.floor(20 + Math.random() * 80) + 'px'; inner.style.setProperty('--drift', drift);
     inner.style.fontSize = (16 + Math.random() * 36) + 'px';
-
-    // Slight horizontal offset so roses don't always start exactly at left
-    const offset = (Math.random()*30 - 15) + 'px';
-    inner.style.marginLeft = offset;
-
-    rose.appendChild(inner);
-    container.appendChild(rose);
-    activeCount++;
-
-    // Remove element after animation ends (duration + small buffer)
-    const buffer = 300; // ms buffer
-    const removeAfter = fixedDurationMs + buffer;
-    setTimeout(()=>{
-      try{ container.removeChild(rose); }
-      catch(e){}
-      activeCount = Math.max(0, activeCount-1);
-    }, removeAfter);
+    const offset = (Math.random()*30 - 15) + 'px'; inner.style.marginLeft = offset;
+    rose.appendChild(inner); container.appendChild(rose); activeCount++;
+    const buffer = 300; const removeAfter = fixedDurationMs + buffer;
+    setTimeout(()=>{ try{ container.removeChild(rose); }catch(e){} activeCount = Math.max(0, activeCount-1); }, removeAfter);
   }
-
-  // Create a gentle initial burst
-  for(let i=0;i<6;i++){
-    setTimeout(createRose, i*150);
-  }
-
-  // Ongoing spawn
+  for(let i=0;i<6;i++) setTimeout(createRose, i*150);
   setInterval(createRose, spawnInterval);
+})();
+
+/* ---------- New: single Dudu sequence controller (unchanged behavior) ---------- */
+(function enableSingleDudu(){
+  const overlay = document.getElementById('duduOverlay');
+  const dudu = document.getElementById('duduGif');
+  const heart = document.getElementById('duduHeart');
+  const spark = document.getElementById('duduSpark');
+  if(!overlay || !dudu) return;
+
+  let timeouts = [];
+  const sequences = { s1:5500, s2:6000, s3:6000, s4:6000, s5:6000, s6:5200, s7:7000 };
+
+  function clearAll(){
+    timeouts.forEach(t=>clearTimeout(t)); timeouts=[];
+    overlay.classList.remove('_heart-on','_spark-on');
+    dudu.className = 'dudu';
+  }
+
+  function playSeq(screenId){
+    clearAll();
+    const total = sequences[screenId] || 6000;
+    const t1 = Math.round(total * 0.18);
+    const t2 = Math.round(total * 0.30);
+    const t3 = Math.round(total * 0.46);
+    const t4 = Math.round(total * 0.60);
+    const t5 = Math.round(total * 0.86);
+
+    // start: gentle walk/peek
+    dudu.classList.add('_walk');
+
+    // approach/lean
+    timeouts.push(setTimeout(()=>{ dudu.classList.remove('_walk'); dudu.classList.add('_approach'); }, t1));
+
+    // close (kiss prep)
+    timeouts.push(setTimeout(()=>{ dudu.classList.remove('_approach'); dudu.classList.add('_close'); }, t2));
+
+    // kiss/hug moment: show heart + spark
+    timeouts.push(setTimeout(()=>{ overlay.classList.add('_heart-on','_spark-on'); dudu.classList.add('_kiss'); }, t3));
+
+    // end hug: hide spark -> retreat
+    timeouts.push(setTimeout(()=>{ overlay.classList.remove('_spark-on'); overlay.classList.remove('_heart-on'); dudu.classList.remove('_kiss'); dudu.classList.add('_retreat'); }, t4));
+
+    // after retreat: if final screen, small dance; then loop
+    timeouts.push(setTimeout(()=>{
+      dudu.classList.remove('_retreat');
+      if(screenId === 's7'){ dudu.classList.add('_dance'); timeouts.push(setTimeout(()=>dudu.classList.remove('_dance'),900)); }
+      timeouts.push(setTimeout(()=>playSeq(screenId), Math.max(300, total - t5 + 200)));
+    }, t5));
+  }
+
+  // detect active screen changes (polling)
+  let last = document.querySelector('.screen.active')?.id || 's1';
+  playSeq(last);
+  const poll = setInterval(()=>{
+    const active = document.querySelector('.screen.active')?.id || null;
+    if(active && active !== last){ last = active; playSeq(active); }
+  }, 250);
+
+  window.addEventListener('beforeunload', ()=>{ clearInterval(poll); clearAll(); });
+  window.__singleDudu = { play: playSeq, clear: clearAll };
 })();
 </script>
 
