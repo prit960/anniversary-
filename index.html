@@ -67,6 +67,50 @@ button{
   50%{transform:scale(1.2);}
   100%{transform:scale(1);}
 }
+
+/* ---------- Falling roses styles (added) ---------- */
+.rose-container{
+  position:fixed;
+  inset:0;
+  pointer-events:none; /* don't block clicks */
+  overflow:hidden;
+  z-index:9999;
+}
+
+.rose{
+  position:absolute;
+  top:-20vh;
+  will-change:transform, opacity;
+  animation-name:fall;
+  animation-timing-function:linear;
+  animation-fill-mode:forwards;
+  /* --dur will be set inline in JS (fixed to 7s) */
+  animation-duration: var(--dur, 7s);
+}
+
+.rose-inner{
+  display:inline-block;
+  transform-origin:center;
+  /* sway animation runs for same duration as fall */
+  animation-name:sway;
+  animation-timing-function:ease-in-out;
+  animation-fill-mode:forwards;
+  animation-duration: var(--dur, 7s);
+  user-select:none;
+}
+
+@keyframes fall{
+  0%{ transform: translateY(-20vh); opacity:1; }
+  100%{ transform: translateY(120vh); opacity:0.95; }
+}
+
+@keyframes sway{
+  0%{ transform: translateX(0) rotate(0deg); }
+  50%{ transform: translateX(var(--drift, 40px)) rotate(180deg); }
+  100%{ transform: translateX(calc(var(--drift, 40px) * -1)) rotate(360deg); }
+}
+/* ---------- end falling roses styles ---------- */
+
 </style>
 </head>
 
@@ -126,6 +170,9 @@ button{
   <button onclick="sendWhatsApp()">SEND 💌</button>
 </div>
 
+<!-- Rose container (added) -->
+<div class="rose-container" id="roseContainer" aria-hidden="true"></div>
+
 <script>
 function next(n){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -156,6 +203,74 @@ function sendWhatsApp(){
   window.location.href=
   "https://wa.me/916367966262?text="+encodeURIComponent(msg);
 }
+
+/* ---------- Falling roses script (added) ---------- */
+/* Each rose now has a fixed duration of 7000ms (7s) and new spawn interval 450ms.
+   Keeps pointer-events:none so it won't block interactions.
+*/
+
+(function enableFallingRoses(){
+  const container = document.getElementById('roseContainer');
+  if(!container) return;
+
+  let maxOnScreen = 18;          // maximum roses at once
+  let spawnInterval = 450;      // ms between spawns (as requested)
+  let fixedDurationMs = 7000;   // duration for each rose in ms (7000ms)
+  let activeCount = 0;
+
+  function createRose(){
+    if(activeCount >= maxOnScreen) return;
+
+    const rose = document.createElement('div');
+    rose.className = 'rose';
+
+    // Random horizontal start (0% - 100%)
+    const left = Math.random() * 100;
+    rose.style.left = left + '%';
+
+    // Fixed duration 7s
+    const dur = (fixedDurationMs/1000).toFixed(2) + 's';
+    rose.style.setProperty('--dur', dur);
+
+    // Random z-index small variation to give depth
+    rose.style.zIndex = (9999 + Math.floor(Math.random()*10)).toString();
+
+    // inner element handles sway/rotation so transforms don't clash
+    const inner = document.createElement('div');
+    inner.className = 'rose-inner';
+    inner.textContent = '🌹';
+
+    // Random drift (px), font size (px)
+    const drift = Math.floor(20 + Math.random() * 80) + 'px';
+    inner.style.setProperty('--drift', drift);
+    inner.style.fontSize = (16 + Math.random() * 36) + 'px';
+
+    // Slight horizontal offset so roses don't always start exactly at left
+    const offset = (Math.random()*30 - 15) + 'px';
+    inner.style.marginLeft = offset;
+
+    rose.appendChild(inner);
+    container.appendChild(rose);
+    activeCount++;
+
+    // Remove element after animation ends (duration + small buffer)
+    const buffer = 300; // ms buffer
+    const removeAfter = fixedDurationMs + buffer;
+    setTimeout(()=>{
+      try{ container.removeChild(rose); }
+      catch(e){}
+      activeCount = Math.max(0, activeCount-1);
+    }, removeAfter);
+  }
+
+  // Create a gentle initial burst
+  for(let i=0;i<6;i++){
+    setTimeout(createRose, i*150);
+  }
+
+  // Ongoing spawn
+  setInterval(createRose, spawnInterval);
+})();
 </script>
 
 </body>
