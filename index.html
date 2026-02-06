@@ -96,7 +96,7 @@ button{
 /* Non-intrusive overlay, above question area; pointer-events:none so inputs not blocked. */
 .dudu-overlay{
   position:fixed;
-  top:10vh;                 /* moved slightly lower as requested */
+  top:11vh;                 /* moved slightly lower as requested */
   left:50%;
   transform:translateX(-50%);
   width:150px;             /* container width */
@@ -111,8 +111,8 @@ button{
 
 /* GIF sizing reduced so message remains visible */
 .dudu-overlay img{
-  width:90px;             /* smaller size as requested */
-  height:50PX;
+  width:100px;             /* smaller size as requested */
+  height:70PX;
   display:block;
   pointer-events:none;
   user-select:none;
@@ -216,7 +216,7 @@ button{
     May this beautiful journey of our love continue forever.<br><br>
     Every moment spent with you is like a beautiful dream.<br><br>
     Thank you for brightening my life 🤍
-  </p>
+  </p>Tap the heart…</p>
   <button onclick="next(6)">❤️</button>
 </div>
 
@@ -230,6 +230,7 @@ button{
   <p>I’ll always choose you, every single day.</p>
   <h1>🎉 Happy Anniversary 🎉</h1>
   <h2>Love you Baccha ❤️</h2>
+  <p></p>click send button…</p>
   <button onclick="sendWhatsApp()">SEND 💌</button>
 </div>
 
@@ -347,5 +348,6 @@ function sendWhatsApp(){
 
 </body>
 </html>
+
 
 
